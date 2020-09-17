@@ -1,0 +1,16 @@
+{
+    "name": "MatchmakingAccounts",
+    "columns": {
+        "id": {
+            "primary": true,
+            "type": "bigint"
+        },
+        "date": {
+            "type": "date"
+        },
+        "banned": {
+            "type": "boolean",
+            "default": false
+        }
+    }
+}

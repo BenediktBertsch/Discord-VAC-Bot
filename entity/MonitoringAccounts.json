@@ -1,0 +1,10 @@
+{
+    "name": "MonitoringAccounts",
+    "columns": {
+        "id": {
+            "primary": true,
+            "type": "bigint",
+            "unique": true
+        }
+    }
+}
