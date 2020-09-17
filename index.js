@@ -61,6 +61,19 @@ async function start() {
 
 function checkConfig() {
     //Check Environment Variables
+    if (!env.DB_TYPE || !env.DB_HOST || !env.DB_PORT || !env.DB_USER || !env.DB_PASS || !env.DB_NAME || !env.DISCORD_TOKEN || !env.STEAM_ACCNAME || !env.STEAM_APIKEY || !env.STEAM_ACCPASS) {
+        if (!env.DB_TYPE || !env.DB_HOST || !env.DB_PORT || !env.DB_USER || !env.DB_PASS || !env.DB_NAME) {
+            logger.fatal("DB_TYPE, DB_HOST, DB_PORT, DB_USER, DB_PASS and DB_NAME are needed.");
+        }
+        if (!env.DISCORD_TOKEN) {
+            logger.fatal("DISCORD_TOKEN is needed.")
+        }
+        if (!env.STEAM_ACCNAME || !env.STEAM_APIKEY || !env.STEAM_ACCPASS) {
+            logger.fatal("STEAM_ACCNAME, STEAM_ACCPASS and STEAM_APIKEY are needed.");
+        }
+        process.exit();
+    }
+    return true;
 }
 
 client.on('ready', () => {
