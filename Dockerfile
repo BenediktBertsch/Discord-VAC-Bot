@@ -1,9 +1,12 @@
-
-FROM node:latest
-
+FROM node
+#Create working directory
+RUN mkdir -p /app
 WORKDIR /app
-
-ADD . /app
+#Install app dependencies
+COPY package.json /app/
+RUN npm install
+#Bundle app resources
+COPY . /app
 
 #Environment variables:
 ENV DB_TYPE=
@@ -17,8 +20,4 @@ ENV STEAM_ACCPASS=
 ENV STEAM_APIKEY=
 ENV DISCORD_TOKEN=
 
-VOLUME /app
-
-RUN npm i && npm i steam-user
-
-ENTRYPOINT [ "node", "/app/index.js" ]
+ENTRYPOINT [ "node", "index.js" ]
