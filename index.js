@@ -1,9 +1,11 @@
-const Steam = require('steam');
-const steamClient = new Steam.SteamClient();
-const steamUser = new Steam.SteamUser(steamClient);
-const steamGC = new Steam.SteamGameCoordinator(steamClient, 730);
-const csgo = require('csgo');
-const csgoClient = new csgo.CSGOClient(steamUser, steamGC, false);
+const SteamUser = require('steam-user');
+const steamClient = new SteamUser();
+// const steamClient = new Steam.SteamClient();
+// const steamUser = new Steam.SteamUser(steamClient);
+// const steamGC = new Steam.SteamGameCoordinator(steamClient, 730);
+const CSGO = require('globaloffensive');
+const csgoUser = new CSGO(steamClient);
+// const csgoClient = new csgo.CSGOClient(steamUser, steamGC, false);
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const log4js = require('log4js');
@@ -22,7 +24,12 @@ log4js.configure({
 })
 var logger = log4js.getLogger();
 
-var connection, monitoringRepository, mmRepository, steamids, steamidparameter, searchedids = ['76561198055869308'];
+var connection, monitoringRepository, mmRepository, steamids, steamidparameter, searchedids = [];
+
+const logOnOptions = {
+    accountName: env.STEAM_ACCNAME,
+    password: env.STEAM_ACCPASS,
+}
 
 start();
 
@@ -225,42 +232,33 @@ function createMessageEmbed(stringArray, name) {
 }
 
 function check() {
-    steamClient.connect();
+    steamClient.logOn(logOnOptions);
 }
 
-steamClient.on("logOnResponse", async (response) => {
-    if (response.eresult === Steam.EResult.OK) {
+steamClient.on('loggedOn', async (response) => {
+    if (response.eresult === 1) {
         logger.info("Checking for running matchmaking games.");
         steamids = await monitoringRepository.find();
-        csgoClient.launch();
+        steamClient.gamesPlayed([730]);
     } else {
         logger.warn("Could not connect to steam. Login failed.");
         logger.error(response);
     }
-});
+})
 
-steamClient.on("connected", function () {
-    steamUser.logOn({
-        account_name: env.STEAM_ACCNAME,
-        password: env.STEAM_ACCPASS
-    });
-});
-
-csgoClient.on("ready", async () => {
+csgoUser.on('connectedToGC', async () => {
     searchedids = []
     for (let steamid of steamids) {
         if (!searchedids.some((searched) => searched === steamid.id)) {
-            var accId = csgoClient.ToAccountID(steamid.id)
-            csgoClient.requestLiveGameForUser(accId)
-            await sleep(2000)
+            csgoUser.requestLiveGameForUser(steamid.id);
+            await sleep(1000)
         }
     }
-    csgoClient.exit()
-});
+})
 
-csgoClient.on("matchList", async (response) => {
-    if (response.matches[0]) {
-        response.matches[0].roundstats_legacy.reservation.account_ids.forEach(async (accid) => {
+csgoUser.on('matchList', async (response) => {
+    if (response[0]) {
+        response[0].roundstats_legacy.reservation.account_ids.forEach(async (accid) => {
             if (await monitoringRepository.findOne(csgoClient.ToSteamID(accid)) === undefined && await mmRepository.findOne(csgoClient.ToSteamID(accid)) === undefined) {
                 var steamid_db = {
                     id: csgoClient.ToSteamID(accid),
@@ -272,7 +270,7 @@ csgoClient.on("matchList", async (response) => {
             }
         })
     }
-});
+})
 
 function sleep(ms) {
     return new Promise((resolve) => {
