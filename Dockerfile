@@ -19,6 +19,6 @@ ENV DISCORD_TOKEN=
 
 VOLUME /app
 
-RUN npm i && ls -la
+RUN npm i
 
 ENTRYPOINT [ "node", "/app/index.js" ]
