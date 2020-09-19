@@ -1,11 +1,7 @@
 const SteamUser = require('steam-user');
 const steamClient = new SteamUser();
-// const steamClient = new Steam.SteamClient();
-// const steamUser = new Steam.SteamUser(steamClient);
-// const steamGC = new Steam.SteamGameCoordinator(steamClient, 730);
 const CSGO = require('globaloffensive');
 const csgoUser = new CSGO(steamClient);
-// const csgoClient = new csgo.CSGOClient(steamUser, steamGC, false);
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const log4js = require('log4js');
