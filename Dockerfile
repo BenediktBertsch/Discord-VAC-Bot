@@ -19,6 +19,6 @@ ENV DISCORD_TOKEN=
 
 VOLUME /app
 
-RUN npm i
+RUN npm i && npm i steam-user
 
 ENTRYPOINT [ "node", "/app/index.js" ]
